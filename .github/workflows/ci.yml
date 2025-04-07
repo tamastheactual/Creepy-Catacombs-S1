@@ -8,34 +8,51 @@ on:
 
 jobs:
   build-and-test:
-    runs-on: ubuntu-latest
+    # 1) Use a matrix for OS + Python versions
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11"]
+        os: [ubuntu-latest, windows-latest]
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
+
     steps:
       - name: Check out code
         uses: actions/checkout@v3
 
+      # 2) Set up Python with caching for pip
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+          #  Typically you'd specify a file listing your dependencies for the 'cache-dependency-path'.
+          #  For example, if you have a 'requirements.txt' or 'pyproject.toml'.
+          #  If you rely on setup.py alone, you can still specify it here, but it's not as robust.
+          cache-dependency-path: |
+            requirements.txt
+            setup.py
+            .github/workflows/ci.yml
 
+      # 3) Install build dependencies
       - name: Install build dependencies
         run: pip install --upgrade pip setuptools wheel build
-      
+
+      # 4) Install your package in editable mode with test extras
       - name: Install test dependencies
         run: |
-          pip install -e .[test]
+          pip install -e .
 
+      # 5) Run tests
       - name: Test with pytest
         run: pytest --maxfail=1 --disable-warnings -q
 
+      # 6) Build dist
       - name: Build dist
         run: python -m build
 
+      # 7) Upload artifacts
       - name: Upload dist artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: dist-${{ matrix.python-version }}
+          name: dist-${{ matrix.os }}-py${{ matrix.python-version }}
           path: dist
