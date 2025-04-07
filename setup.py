@@ -10,6 +10,7 @@ setup(
         'pygame>=2.6.0',
         'gymnasium>=1.0.0',
         'numpy',
+        'pytest'
     ],
     python_requires='>=3.8',
 )
