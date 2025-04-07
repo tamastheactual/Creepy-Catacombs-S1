@@ -1,0 +1,30 @@
+name: Publish
+
+on:
+  push:
+    tags: 
+      - "v0.0.1"   # e.g., v0.1.0
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+
+      - name: Install build
+        run: pip install --upgrade build twine
+
+      - name: Build
+        run: python -m build
+
+      - name: Publish
+        run: twine upload dist/*
+        env:
+          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
