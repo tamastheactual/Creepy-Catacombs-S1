@@ -9,7 +9,7 @@ def env():
     # Use some small config for speed
     return gym.make(
         "CreepyCatacombs-v0",
-        render_mode=None,
+        render_mode="rgb_array",
         width=5,
         height=5,
         corridor_width=3,
@@ -108,5 +108,6 @@ def test_render_q_values_arrows(env):
     # create a Q-table for the env
     Q = np.zeros((env.observation_space.n, env.action_space.n))
     # Ensure the method doesn't crash
-    surf = env.unwrapped.render_q_values_arrows(Q, return_surface=True)
+    surf = env.unwrapped.renderer.render_q_values_arrows(env.unwrapped, Q)
+    print(type(surf))
     assert surf is not None, "Should return a pygame.Surface"
