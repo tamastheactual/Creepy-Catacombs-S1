@@ -1,7 +1,6 @@
 import pygame
 import logging
 import os
-import matplotlib.pyplot as plt
 
 class CreepyCatacombsPygameRenderer:
     def __init__(self, verbosity: int = logging.WARNING):

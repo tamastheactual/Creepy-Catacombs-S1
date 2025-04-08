@@ -7,7 +7,6 @@ import numpy as np
 import random
 from typing import List, Tuple
 from collections import deque
-import matplotlib.pyplot as plt
 
 import logging
 
