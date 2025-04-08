@@ -1,6 +1,7 @@
-import pygame
 import logging
 import os
+
+import pygame
 
 class CreepyCatacombsPygameRenderer:
     def __init__(self, verbosity: int = logging.WARNING):
@@ -14,7 +15,7 @@ class CreepyCatacombsPygameRenderer:
         self.initialized = False
         self.assets = {}  # Dictionary to store loaded assets
         self.verbosity = verbosity
-        
+
         logging.basicConfig(
         level=self.verbosity,
         format="%(asctime)s - %(levelname)s - %(message)s",
@@ -23,7 +24,6 @@ class CreepyCatacombsPygameRenderer:
         logging.getLogger("matplotlib").setLevel(logging.WARNING)
         logging.getLogger("PIL").setLevel(logging.WARNING)
         self.logger = logging.getLogger(__name__)
-        
 
     def render(self, env, render_mode="human"):
         """
@@ -78,10 +78,9 @@ class CreepyCatacombsPygameRenderer:
             self.logger.debug("Rendered frame to human display.")
             return None
 
-        elif render_mode == "rgb_array":
-            arr = pygame.surfarray.array3d(self.surface)
-            self.logger.debug("Rendered frame as RGB array.")
-            return arr.transpose((1, 0, 2))
+        arr = pygame.surfarray.array3d(self.surface)
+        self.logger.debug("Rendered frame as RGB array.")
+        return arr.transpose((1, 0, 2))
 
     def _draw_asset(self, asset_name, rect):
         """
@@ -114,7 +113,7 @@ class CreepyCatacombsPygameRenderer:
         self.window_size = (env.width * env.tile_size, env.height * env.tile_size)
         self.window = pygame.display.set_mode(self.window_size)
         pygame.display.set_caption("Creepy-Catacombs-S1")
-        self.surface = pygame.Surface(self.window_size, pygame.SRCALPHA)
+        self.surface = pygame.Surface(self.window_size)
 
         # Load assets
         assets_path = os.path.join(os.path.dirname(__file__), "assets")
@@ -124,14 +123,16 @@ class CreepyCatacombsPygameRenderer:
             "goal": pygame.image.load(os.path.join(assets_path, "goal.png")).convert_alpha(),
             "floor": pygame.image.load(os.path.join(assets_path, "floor.png")).convert_alpha(),
             "zombie": pygame.image.load(os.path.join(assets_path, "zombie.png")).convert_alpha(),
-            "plothole": pygame.image.load(os.path.join(assets_path, "plothole.png")).convert_alpha(),
+            "plothole": pygame.image.load(os.path.join(assets_path, "ph.png")).convert_alpha(),
             "agent": pygame.image.load(os.path.join(assets_path, "agent.png")).convert_alpha(),
         }
         for key in self.assets:
-            self.assets[key] = pygame.transform.scale(self.assets[key], (env.tile_size, env.tile_size))
-
+            self.assets[key] = pygame.transform.scale(
+                self.assets[key],
+                (env.tile_size, env.tile_size)
+            )
         self.logger.info("Assets loaded and scaled to tile size.")
-        
+
     def render_q_values_arrows(self, env, Q, scale=0.01, verbosity: int = logging.WARNING):
         """
         Render Q-values as arrows on the grid.
@@ -156,7 +157,6 @@ class CreepyCatacombsPygameRenderer:
                         env.tile_size,
                         env.tile_size
                     )
-                    
                     if env.grid[r, c] == -1:
                         continue
                     if env.grid[r, c] == -2:
@@ -172,21 +172,32 @@ class CreepyCatacombsPygameRenderer:
                         self._draw_arrow_on_surface(surface, rect, action, color)
                         text = font.render(f"{q_value:.2f}", True, color)
                         if action == 0:  # Up
-                            surface.blit(text, (rect.centerx - text.get_width() // 2, rect.top + text.get_height() // 4))
+                            surface.blit(text,
+                                    (rect.centerx - text.get_width() // 2,
+                                     rect.top + text.get_height() // 4
+                                    ))
                         elif action == 1:  # Right
-                            surface.blit(text, (rect.right - text.get_width() - 5, rect.centery - text.get_height()))
+                            surface.blit(text,
+                                         (rect.right - text.get_width() - 5,
+                                          rect.centery - text.get_height()
+                                         ))
                         elif action == 2:  # Down
-                            surface.blit(text, (rect.centerx - text.get_width() // 2, rect.bottom - text.get_height() - 5 ))
+                            surface.blit(text,
+                                         (rect.centerx - text.get_width() // 2,
+                                          rect.bottom - text.get_height() - 5
+                                         ))
                         elif action == 3:  # Left
-                            surface.blit(text, (rect.left + 5, rect.centery - text.get_height()))
-            
+                            surface.blit(text,
+                                         (rect.left + 5,
+                                          rect.centery - text.get_height()
+                                         ))
             self.close()
             self.logger.debug("Q-values rendered successfully.")
             return surface
-        except Exception as e:
+        except (Exception, ValueError) as e:
             self.logger.error("Error while rendering Q-values: %s", str(e))
             return None
-            
+
     def display_surface_with_matplotlib(self, surface):
         """
         Displays a Pygame surface using Matplotlib.
@@ -194,13 +205,19 @@ class CreepyCatacombsPygameRenderer:
         """
         if surface is None:
             self.logger.error("Cannot display surface: surface is None.")
-            return
+            return None
 
         array = pygame.surfarray.array3d(surface)
         array = array.transpose((1, 0, 2))
         return array
-    
-    def render_v_values(self, env, V, max_value=None, verbosity: int = logging.WARNING):
+
+    def render_v_values(
+        self,
+        env,
+        V,
+        max_value=None,
+        verbosity: int = logging.WARNING
+    ):
         """
         Render V-values as gradient squares on the grid.
         - V: A dictionary mapping states to V-values.
@@ -237,29 +254,45 @@ class CreepyCatacombsPygameRenderer:
                     v_value = V.get(state, 0)
 
                     # Normalize the value to a range between 0 and 1
-                    normalized_value = (v_value - min_value) / (max_value - min_value) if max_value != min_value else 0
+                    normalized_value = (
+                        (v_value - min_value) / (max_value - min_value)
+                        if max_value != min_value
+                        else 0
+                    )
 
                     # Calculate the red intensity (higher values = deeper red)
                     red_intensity = int(255 * normalized_value)
-                    overlay_color = (red_intensity, 255 - red_intensity, 255 - red_intensity, 128)  # Red gradient
+                    overlay_color = (
+                        red_intensity,
+                        255 - red_intensity,
+                        128,
+                    )  # Red gradient
 
                     # Create a semi-transparent overlay
-                    overlay = pygame.Surface((env.tile_size, env.tile_size), pygame.SRCALPHA)
+                    overlay = pygame.Surface((env.tile_size, env.tile_size))
                     overlay.fill(overlay_color)
                     surface.blit(overlay, rect.topleft)
 
                     # Render the V-value as text
                     text = font.render(f"{v_value:.2f}", True, (255, 255, 255))
-                    surface.blit(text, (rect.centerx - text.get_width() // 2, rect.centery - text.get_height() // 2))
+                    surface.blit(text,
+                                 (rect.centerx - text.get_width() // 2,
+                                  rect.centery - text.get_height() // 2
+                                ))
 
             self.close()
             self.logger.debug("V-values rendered successfully.")
             return surface
-        except Exception as e:
+        except (Exception, ValueError) as e:
             self.logger.error("Error while rendering V-values: %s", str(e))
             return None
-        
-    def render_optimal_path(self, env, policy, verbosity: int = logging.WARNING):
+
+    def render_optimal_path(
+        self,
+        env,
+        policy,
+        verbosity: int = logging.WARNING
+    ):
         """
         Render the optimal path from the agent's position to the goal using red arrows.
         - env: The environment instance.
@@ -309,7 +342,7 @@ class CreepyCatacombsPygameRenderer:
                 elif action == 3:  # Left
                     next_pos = (r, c - 1)
                 else:
-                    self.logger.error(f"Invalid action {action} at state {state}.")
+                    self.logger.error("Invalid action %d at state %d.", action, state)
                     break
 
                 # Check if the next position is the goal
@@ -323,7 +356,7 @@ class CreepyCatacombsPygameRenderer:
             self.close()
             self.logger.debug("Optimal path rendered successfully.")
             return surface
-        except Exception as e:
+        except (Exception, ValueError) as e:
             self.logger.error("Error while rendering optimal path: %s", str(e))
             return None
 
@@ -338,6 +371,8 @@ class CreepyCatacombsPygameRenderer:
         """
         center = rect.center
         scaled_length = 0.3 * rect.height
+        start = (center[0], center[1])
+        end = (center[0], center[1])
         if action == 0:  # Up
             start = (center[0], center[1])
             end = (center[0], center[1] - scaled_length)
@@ -353,9 +388,7 @@ class CreepyCatacombsPygameRenderer:
 
         pygame.draw.line(surface, color, start, end, 2)
         pygame.draw.circle(surface, color, end, 3)
-        
-    
-        
+
     def close(self):
         """
         Closes the Pygame window and cleans up resources.

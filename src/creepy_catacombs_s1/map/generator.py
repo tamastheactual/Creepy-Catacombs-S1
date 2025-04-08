@@ -1,14 +1,9 @@
-import numpy as np
 import random
-from typing import List, Tuple
-from collections import deque
-
-import numpy as np
-import random
-from typing import List, Tuple
-from collections import deque
-
 import logging
+from typing import List, Tuple
+from collections import deque
+
+import numpy as np
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -23,7 +18,12 @@ def configure_logger(verbosity: int):
     """
     logger.setLevel(verbosity)
 
-def is_reachable(grid: np.ndarray, start: Tuple[int, int], goal: Tuple[int, int], verbosity: int = logging.WARNING) -> bool:
+def is_reachable(
+    grid: np.ndarray,
+    start: Tuple[int, int],
+    goal: Tuple[int, int],
+    verbosity: int = logging.WARNING
+) -> bool:
     """
     Check if the tunnel is reachable from start to goal using BFS.
     """
@@ -46,21 +46,35 @@ def is_reachable(grid: np.ndarray, start: Tuple[int, int], goal: Tuple[int, int]
         # Explore neighbors
         for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
             nr, nc = r + dr, c + dc
-            if 0 <= nr < height and 0 <= nc < width and not visited[nr, nc] and grid[nr, nc] in [0, 2]:
+            if (
+                0 <= nr < height and
+                0 <= nc < width and
+                not visited[nr, nc] and
+                grid[nr, nc] in [0, 2]
+            ):
                 logger.debug("Adding neighbor cell: (%d, %d) to queue", nr, nc)
                 queue.append((nr, nc))
 
     logger.debug("No path found from %s to %s", start, goal)
     return False
 
-def generate_tunnel(height: int, width: int, corridor_width: int, n_plotholes: int = 3, verbosity: int = logging.WARNING) -> np.ndarray:
+def generate_tunnel(
+    height: int,
+    width: int,
+    corridor_width: int,
+    n_plotholes: int = 3,
+    verbosity: int = logging.WARNING
+) -> np.ndarray:
     """
     Create the 2D array with a 'tunnel' from bottom row to top row, with optional plotholes:
     -1 = wall, 0 = empty, 1 = start, 2 = goal, -2 = plothole
     Returns the generated grid as np.array of shape (height, width).
     """
     configure_logger(verbosity)
-    logger.info("Generating tunnel with height=%d, width=%d, corridor_width=%d, n_plotholes=%d", height, width, corridor_width, n_plotholes)
+    logger.info("Generating tunnel with height=%d", height)
+    logger.info("Generating tunnel with width=%d", width)
+    logger.info("Generating tunnel with corridor_width=%d", corridor_width)
+    logger.info("Generating tunnel with n_plotholes=%d", n_plotholes)
 
     assert corridor_width > 0, "Corridor width must be greater than 0."
     assert corridor_width < width, "Corridor width must be smaller than the total width."
@@ -111,12 +125,22 @@ def generate_tunnel(height: int, width: int, corridor_width: int, n_plotholes: i
 
     if not is_reachable(grid, start, goal, verbosity=verbosity):
         logger.debug("Tunnel is disconnected. Retrying with fewer plotholes.")
-        return generate_tunnel(height, width, corridor_width, max(0, n_plotholes - 1), verbosity=verbosity)
+        return generate_tunnel(
+            height,
+            width,
+            corridor_width,
+            max(0, n_plotholes - 1),
+            verbosity=verbosity
+        )
 
     logger.info("Tunnel generation complete.")
     return grid
 
-def place_zombies(grid: np.ndarray, n_zombies: int, verbosity: int = logging.WARNING) -> List[Tuple[int, int]]:
+def place_zombies(
+    grid: np.ndarray,
+    n_zombies: int,
+    verbosity: int = logging.WARNING
+) -> List[Tuple[int, int]]:
     """
     Place n_zombies in random empty cells (3) at top 70% rows.
     Returns a list of zombie positions and modifies grid in-place.
@@ -140,4 +164,3 @@ def place_zombies(grid: np.ndarray, n_zombies: int, verbosity: int = logging.WAR
         grid[zr, zc] = 3
         logger.debug("Zombie placed at (%d, %d)", zr, zc)
     return zombie_positions
-

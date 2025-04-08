@@ -1,9 +1,11 @@
-import gymnasium as gym
-import numpy as np
+
 import random
 import logging
-from gymnasium import spaces
 from typing import Optional, Any, List, Tuple
+
+import gymnasium as gym
+import numpy as np
+from gymnasium import spaces
 
 from creepy_catacombs_s1.param.env_params import EnvParams
 from creepy_catacombs_s1.map.generator import generate_tunnel, place_zombies
@@ -16,7 +18,7 @@ class CreepyCatacombsEnv(gym.Env):
     }
 
     def __init__(
-        self, 
+        self,
         render_mode: Optional[str] = None,
         fixed_env_params: EnvParams = EnvParams(),
         verbosity: int = logging.WARNING,
@@ -33,7 +35,7 @@ class CreepyCatacombsEnv(gym.Env):
         self.render_mode = render_mode
         self.verbosity = verbosity
         self.kwargs = kwargs
-        
+
         logging.basicConfig(
         level=self.verbosity,
         format="%(asctime)s - %(levelname)s - %(message)s",
@@ -48,8 +50,10 @@ class CreepyCatacombsEnv(gym.Env):
         self.width = self.params.width
         self.height = self.params.height
         self.tile_size = self.params.tile_size
-        self.logger.info(f"Tile size: {self.tile_size}")
-        self.logger.info(f"Width: {self.width}, Height: {self.height}")
+
+        self.logger.info("Tile size: %d", self.tile_size)
+        self.logger.info("Height: %d", self.height)
+        self.logger.info("Width: %d", self.width)
         self.corridor_width = self.params.corridor_width
         self.n_zombies = self.kwargs.get("n_zombies", self.params.n_zombies)
         self.zombie_movement = self.kwargs.get("zombie_movement", self.params.zombie_movement)
@@ -64,7 +68,7 @@ class CreepyCatacombsEnv(gym.Env):
         self.plotholes = []
 
         if render_mode in self.metadata["render_modes"]:
-            self.logger.info(f"Initializing renderer with mode: {render_mode}")
+            self.logger.info("Render mode: %s", render_mode)
             self.renderer = CreepyCatacombsPygameRenderer(verbosity=self.verbosity)
         else:
             self.renderer = None
@@ -94,9 +98,9 @@ class CreepyCatacombsEnv(gym.Env):
 
         self.logger.info("Resetting environment...")
         self.grid = generate_tunnel(
-            self.height, 
-            self.width, 
-            self.corridor_width, 
+            self.height,
+            self.width,
+            self.corridor_width,
             verbosity=self.verbosity
         )
         self.original_grid = self.grid.copy()
@@ -117,10 +121,10 @@ class CreepyCatacombsEnv(gym.Env):
         self.agent_pos = (start_r, start_c)
         self.goal_pos = (goal_r, goal_c)
 
-        self.logger.info(f"Agent start position: {self.agent_pos}")
-        self.logger.info(f"Goal position: {self.goal_pos}")
-        self.logger.info(f"Plotholes: {self.plotholes}")
-        self.logger.info(f"Zombies: {self.zombie_positions}")
+        self.logger.info("Agent start position: %s", self.agent_pos)
+        self.logger.info("Goal position: %s", self.goal_pos)
+        self.logger.info("Plotholes: %s", self.plotholes)
+        self.logger.info("Zombies: %s", self.zombie_positions)
 
         obs = self._get_obs()
         info = self._get_info()
@@ -168,14 +172,14 @@ class CreepyCatacombsEnv(gym.Env):
         obs = self._get_obs()
         info = self._get_info()
         return obs, reward, terminated, False, info
-    
+
     def _is_illegal_move(self, nr: int, nc: int) -> bool:
         if not (0 <= nr < self.height and 0 <= nc < self.width):
             return True
         if self.grid[nr, nc] == -1:  # Wall
             return True
         return False
-    
+
     def _move_zombies(self):
         """
         Moves zombies based on the selected movement strategy ('random' or 'towards_player').
@@ -184,7 +188,7 @@ class CreepyCatacombsEnv(gym.Env):
         self.logger.debug("Moving zombies with strategy: %s", self.zombie_movement)
         height, width = self.grid.shape
         new_positions: List[Tuple[int, int]] = []
-        directions: List[Tuple[int, int]] = [(0, 0), (0, 1), (0, -1), (1, 0), (-1, 0)]  # Stay, Right, Left, Down, Up
+        directions: List[Tuple[int, int]] = [(0, 0), (0, 1), (0, -1), (1, 0), (-1, 0)]
 
         random.shuffle(self.zombie_positions)
 
@@ -229,13 +233,14 @@ class CreepyCatacombsEnv(gym.Env):
         self.zombie_positions = new_positions
         self.logger.debug("Zombies moved to new positions: %s", self.zombie_positions)
 
+        # Explicitly return new_positions
         return new_positions
 
     def render(self):
         """Just calls the separate renderer if available."""
         if self.renderer is None:
             self.logger.warning("Render called, but no renderer is initialized.")
-            return
+            return None
         return self.renderer.render(
             env=self,
             render_mode=self.render_mode
@@ -250,21 +255,19 @@ class CreepyCatacombsEnv(gym.Env):
         """Pass Q-values to the external renderer if needed."""
         print("Rendering Q-values...")
         surface = self.renderer.render_q_values_arrows(self, Q, verbosity=self.verbosity)
-        rgb_image = self.renderer.display_surface_with_matplotlib(surface)            
+        rgb_image = self.renderer.display_surface_with_matplotlib(surface)
         return rgb_image
-    
+
     def render_values(self, V):
         """Pass V-values to the external renderer if needed."""
         print("Rendering V-values...")
         surface = self.renderer.render_v_values(self, V, verbosity=self.verbosity)
         rgb_image = self.renderer.display_surface_with_matplotlib(surface)
         return rgb_image
-        
+
     def render_optimal_path(self, policy):
         """Pass policy to the external renderer if needed."""
         print("Rendering optimal path...")
         surface = self.renderer.render_optimal_path(self, policy, verbosity=self.verbosity)
         rgb_image = self.renderer.display_surface_with_matplotlib(surface)
         return rgb_image
-    
-    
