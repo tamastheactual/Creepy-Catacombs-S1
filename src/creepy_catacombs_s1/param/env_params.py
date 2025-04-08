@@ -7,7 +7,7 @@ class EnvParams:
     You can add or remove fields as needed.
     """
     width: int = 10
-    height: int = 10
-    tile_size: int = 32
-    corridor_width: int = 3
-    n_zombies: int = 2
+    height: int = 20
+    tile_size: int = 64
+    corridor_width: int = 8
+    n_zombies: int = 0

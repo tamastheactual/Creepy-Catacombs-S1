@@ -37,6 +37,8 @@ class CreepyCatacombsEnv(gym.Env):
         self.width = self.params.width
         self.height = self.params.height
         self.tile_size = self.params.tile_size
+        print(f"Tile size: {self.tile_size}")
+        print(f"Width: {self.width}, Height: {self.height}")
         self.corridor_width = self.params.corridor_width
         self.n_zombies = self.params.n_zombies
 

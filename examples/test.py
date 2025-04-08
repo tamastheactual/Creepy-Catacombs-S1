@@ -1,5 +1,6 @@
 import numpy as np
 import random
+import time
 import pygame
 import gymnasium as gym
 import creepy_catacombs_s1  # assume this triggers environment + renderer registration
@@ -56,41 +57,41 @@ def run_monte_carlo(env, episodes=3000, gamma=0.99, epsilon=0.1):
 if __name__ == "__main__":
     env = gym.make(
         "CreepyCatacombs-v0",
-        render_mode="rgb_array",  # or "human" if you'd like to see step-by-step
-        width=5,
-        height=5,
-        corridor_width=3,
-        n_zombies=0
+        render_mode="human",  # or "human" if you'd like to see step-by-step
     )
-
-    Q_mc, rewards_mc = run_monte_carlo(env, episodes=10000, gamma=0.99, epsilon=0.1)
-    print("MC training done!")
-
-    # Watch a final run
-    state, info = env.reset(seed=42)
-    done = False
-    cumulative_reward = 0
-    while not done:
-        action = np.argmax(Q_mc[state])  # greedy
-        state, reward, done, trunc, _info = env.step(action)
-        cumulative_reward += reward
-    print("Final run (MC) total reward =", cumulative_reward)
-
-    # Now we want an arrow overlay of Q-values as an image.
-    # We'll call the separate renderer:
-    #  - env.renderer is the Pygame class
-    #  - pass return_surface=True to get a surface back
-
-    surface = env.unwrapped.renderer.render_q_values_arrows(
-        env.unwrapped,  # pass the real environment, not the wrapper
-        Q_mc,
-    )
-
-
-    # Finally, display with matplotlib
-    plt.imshow(surface)
-    plt.axis('off')  # optional, to hide axis ticks
-    plt.title('Q-Value Arrows')
-    plt.show()
-
+    env.reset(seed=42)
+    env.render()
+    time.sleep(100)
     env.close()
+
+    # Q_mc, rewards_mc = run_monte_carlo(env, episodes=10000, gamma=0.99, epsilon=0.1)
+    # print("MC training done!")
+
+    # # Watch a final run
+    # state, info = env.reset(seed=42)
+    # done = False
+    # cumulative_reward = 0
+    # while not done:
+    #     action = np.argmax(Q_mc[state])  # greedy
+    #     state, reward, done, trunc, _info = env.step(action)
+    #     cumulative_reward += reward
+    # print("Final run (MC) total reward =", cumulative_reward)
+
+    # # Now we want an arrow overlay of Q-values as an image.
+    # # We'll call the separate renderer:
+    # #  - env.renderer is the Pygame class
+    # #  - pass return_surface=True to get a surface back
+
+    # surface = env.unwrapped.renderer.render_q_values_arrows(
+    #     env.unwrapped,  # pass the real environment, not the wrapper
+    #     Q_mc,
+    # )
+
+
+    # # Finally, display with matplotlib
+    # plt.imshow(surface)
+    # plt.axis('off')  # optional, to hide axis ticks
+    # plt.title('Q-Value Arrows')
+    # plt.show()
+
+    # env.close()
