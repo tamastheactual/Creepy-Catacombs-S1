@@ -3,8 +3,8 @@ name: Publish
 on:
   push:
     branches: [ main ]
-    tags: 
-      - "v0.0.2"   # e.g., v0.1.0
+    tags:
+      - "v*.*.*"  # Match version tags like v0.1.0
 
 jobs:
   publish:
@@ -18,8 +18,22 @@ jobs:
         with:
           python-version: 3.9
 
-      - name: Install build
-        run: pip install --upgrade build twine
+      - name: Install build tools
+        run: pip install --upgrade build twine requests
+
+      - name: Check if version exists on PyPI
+        id: check-version
+        run: |
+          PACKAGE_NAME=$(python setup.py --name)
+          VERSION=$(python setup.py --version)
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" https://pypi.org/project/$PACKAGE_NAME/$VERSION/)
+          if [ "$RESPONSE" -eq 200 ]; then
+            echo "Version $VERSION of $PACKAGE_NAME already exists on PyPI."
+            exit 0
+          fi
+        env:
+          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
 
       - name: Build
         run: python -m build

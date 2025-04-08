@@ -1,4 +1,3 @@
-from .register import *
 from gymnasium.envs.registration import register
 
 register(

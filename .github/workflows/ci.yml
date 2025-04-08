@@ -16,6 +16,7 @@ jobs:
         python-version: ["3.9", "3.10", "3.11", "3.12"]
 
     steps:
+      # 1) Check out the code
       - name: Check out code
         uses: actions/checkout@v3
 
@@ -25,9 +26,6 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
-          #  Typically you'd specify a file listing your dependencies for the 'cache-dependency-path'.
-          #  For example, if you have a 'requirements.txt' or 'pyproject.toml'.
-          #  If you rely on setup.py alone, you can still specify it here, but it's not as robust.
           cache-dependency-path: |
             requirements.txt
             setup.py
@@ -37,20 +35,24 @@ jobs:
       - name: Install build dependencies
         run: pip install --upgrade pip setuptools wheel build
 
-      # 4) Install your package in editable mode with test extras
-      - name: Install test dependencies
+      # 4) Install test and lint dependencies
+      - name: Install test and lint dependencies
         run: |
-          pip install -e .
+          pip install -e .[test] pytest pylint
 
-      # 5) Run tests
-      - name: Test with pytest
+      # 5) Run tests with pytest
+      - name: Run tests with pytest
         run: pytest --maxfail=1 --disable-warnings -q
 
-      # 6) Build dist
+      # 6) Run linting with pylint
+      - name: Run linting with pylint
+        run: pylint src
+
+      # 7) Build the distribution
       - name: Build dist
         run: python -m build
 
-      # 7) Upload artifacts
+      # 8) Upload artifacts
       - name: Upload dist artifacts
         uses: actions/upload-artifact@v4
         with:
