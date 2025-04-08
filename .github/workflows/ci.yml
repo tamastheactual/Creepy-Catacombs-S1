@@ -46,7 +46,7 @@ jobs:
 
       # 6) Run linting with pylint
       - name: Run linting with pylint
-        run: pylint src --ignore=tests --disable=missing-module-docstring,missing-class-docstring,missing-function-docstring,invalid-name,too-few-public-methods,too-many-arguments,too-many-instance-attributes,too-many-locals,too-many-statements,too-many-branches,too-many-return-statements --fail-under = 8.0
+        run: pylint src --ignore=tests --disable=missing-module-docstring,missing-class-docstring,missing-function-docstring,invalid-name,too-few-public-methods,too-many-arguments,too-many-instance-attributes,too-many-locals,too-many-statements,too-many-branches,too-many-return-statements --fail-under 8
         env:
           PYTHONPATH: src
 

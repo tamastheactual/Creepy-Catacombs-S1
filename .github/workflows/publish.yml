@@ -21,25 +21,17 @@ jobs:
       - name: Install build tools
         run: pip install --upgrade build twine requests
 
-      - name: Check if version exists on PyPI
-        id: check-version
+      - name: Build and Publish
         run: |
           PACKAGE_NAME=$(python setup.py --name)
           VERSION=$(python setup.py --version)
           RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" https://pypi.org/project/$PACKAGE_NAME/$VERSION/)
           if [ "$RESPONSE" -eq 200 ]; then
-            echo "Version $VERSION of $PACKAGE_NAME already exists on PyPI."
+            echo "Version $VERSION of $PACKAGE_NAME already exists on PyPI. Skipping upload."
             exit 0
           fi
-        env:
-          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
-          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-
-      - name: Build
-        run: python -m build
-
-      - name: Publish
-        run: twine upload dist/*
+          python -m build
+          twine upload dist/*
         env:
           TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
