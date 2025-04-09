@@ -341,37 +341,37 @@ if __name__ == "__main__":
     # # Visualize the policy
     # env.render()
     # env.close()
-    # Q = sarsa(env, episodes=10000, alpha=0.2, gamma=0.99, epsilon=0.15)
-    # env.reset(seed=42)
-    # Q_dict = {(state, action): Q[state, action] for state in range(Q.shape[0]) for action in range(Q.shape[1])}
+    Q = sarsa(env, episodes=10000, alpha=0.2, gamma=0.99, epsilon=0.15)
+    env.reset(seed=42)
+    Q_dict = {(state, action): Q[state, action] for state in range(Q.shape[0]) for action in range(Q.shape[1])}
     
-    # rgb_array = env.unwrapped.render_q_values(
-    #     Q_dict,
-    # )
-    # print("size of rgb_array", rgb_array.shape) 
-    # policy = np.argmax(Q, axis=1)
+    rgb_array = env.unwrapped.render_q_values(
+        Q_dict,
+    )
+    print("size of rgb_array", rgb_array.shape) 
+    policy = np.argmax(Q, axis=1)
     
-    # env.reset(seed=42)
-    # # render optimal path
-    # rgb_array_2 = env.unwrapped.render_optimal_path(
-    #     policy,
-    # )
+    env.reset(seed=42)
+    # render optimal path
+    rgb_array_2 = env.unwrapped.render_optimal_path(
+        policy,
+    )
     
-    # # rgb array is a numpy array of shape (height, width, 3)
-    # # lets increase the size of it so it matches original pygame window
-    # # and show it
-    # # remove whites from the image
+    # rgb array is a numpy array of shape (height, width, 3)
+    # lets increase the size of it so it matches original pygame window
+    # and show it
+    # remove whites from the image
     
-    # plt.figure(figsize=(20, 20))  # Adjust the figsize to make the image larger
+    plt.figure(figsize=(20, 20))  # Adjust the figsize to make the image larger
 
-    # # Display the rgb_array
-    # plt.imshow(rgb_array_2, interpolation='nearest')  # Use 'nearest' to avoid smoothing
-    # plt.title("Q-values")
-    # plt.axis('off')  # Turn off the axis
+    # Display the rgb_array
+    plt.imshow(rgb_array_2, interpolation='nearest')  # Use 'nearest' to avoid smoothing
+    plt.title("Q-values")
+    plt.axis('off')  # Turn off the axis
 
-    # # Adjust the layout to remove white borders
-    # plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
-    # plt.show()
+    # Adjust the layout to remove white borders
+    plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
+    plt.show()
     policy_net, rewards = train_dqn(env, episodes=3000)
 
     # Save the trained model

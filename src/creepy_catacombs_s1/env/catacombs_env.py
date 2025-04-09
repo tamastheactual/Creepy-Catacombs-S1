@@ -203,7 +203,7 @@ class CreepyCatacombsEnv(gym.Env):
                 for dr, dc in directions:
                     temp_nr, temp_nc = zr + dr, zc + dc
                     if (0 <= temp_nr < height and 0 <= temp_nc < width and
-                        self.grid[temp_nr, temp_nc] not in [-1, -2] and
+                        self.grid[temp_nr, temp_nc] not in [-1, -2, 3] and
                         (temp_nr, temp_nc) not in new_positions):
                         nr, nc = temp_nr, temp_nc
                         break
