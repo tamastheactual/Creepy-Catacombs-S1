@@ -175,7 +175,7 @@ class CreepyCatacombsEnv(gym.Env):
         return obs, reward, terminated, False, info
 
     def _is_illegal_move(self, nr: int, nc: int) -> bool:
-        if not (0 <= nr < self.height and 0 <= nc < self.width):
+        if nr < 0 or nr >= self.height or nc < 0 or nc >= self.width:
             return True
         if self.grid[nr, nc] == -1:  # Wall
             return True
