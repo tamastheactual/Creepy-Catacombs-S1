@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='creepy_catacombs_s1',
-    version='0.0.7',
+    version='0.0.8',
     description='A discrete tunnel environment for RL experiments',
     author='Tamács Takács',
     include_package_data=True,

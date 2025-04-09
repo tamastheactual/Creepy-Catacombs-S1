@@ -313,34 +313,27 @@ if __name__ == "__main__":
         if done:
             break
     env.close()
-    #Q_mc, rewards_mc = run_monte_carlo(env, episodes=10000, gamma=0.99, epsilon=0.1)
-    #print("MC training done!")
+    Q_mc, rewards_mc = run_monte_carlo(env, episodes=10000, gamma=0.99, epsilon=0.1)
+    print("MC training done!")
+    env.reset()
+    Q_dict = {(state, action): Q_mc[state, action] for state in range(Q_mc.shape[0]) for action in range(Q_mc.shape[1])}
 
-    # Now we want an arrow overlay of Q-values as an image.
-    # We'll call the separate renderer:
-    #  - env.renderer is the Pygame class
-    #  - pass return_surface=True to get a surface back
+    surface = env.unwrapped.render_q_values(
+       Q_dict,
+    )
+    V = monte_carlo_value_estimation(env, episodes=10000, gamma=0.99, epsilon=0.25)
+    V_dict = {(state): V[state] for state in range(V.shape[0])}
 
-    # Convert Q (NumPy array) to a dictionary
-    #env.reset()
-    #Q_dict = {(state, action): Q_mc[state, action] for state in range(Q_mc.shape[0]) for action in range(Q_mc.shape[1])}
+    surface = env.unwrapped.render_values(
+        V_dict,
+    )
+    # Print the results
+    print("Optimal Value Function:")
+    print(V.reshape(env.unwrapped.height, env.unwrapped.width))
 
-    #surface = env.unwrapped.render_q_values(
-    #    Q_dict,
-    #)
-    # V = monte_carlo_value_estimation(env, episodes=10000, gamma=0.99, epsilon=0.25)
-    # V_dict = {(state): V[state] for state in range(V.shape[0])}
-
-    # surface = env.unwrapped.render_values(
-    #     V_dict,
-    # )
-    # # Print the results
-    # print("Optimal Value Function:")
-    # print(V.reshape(env.unwrapped.height, env.unwrapped.width))
-
-    # # Visualize the policy
-    # env.render()
-    # env.close()
+    # Visualize the policy
+    env.render()
+    env.close()
     Q = sarsa(env, episodes=10000, alpha=0.2, gamma=0.99, epsilon=0.15)
     env.reset(seed=42)
     Q_dict = {(state, action): Q[state, action] for state in range(Q.shape[0]) for action in range(Q.shape[1])}
