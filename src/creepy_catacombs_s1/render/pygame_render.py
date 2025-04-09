@@ -1,5 +1,5 @@
 import logging
-import os
+import importlib.resources
 
 import pygame
 
@@ -105,7 +105,6 @@ class CreepyCatacombsPygameRenderer:
     def _init_pygame(self, env):
         """
         Initializes Pygame and loads assets.
-        If `create_window` is False, only initializes the surface and assets.
         """
         self.logger.info("Initializing Pygame renderer.")
         pygame.init()
@@ -115,17 +114,13 @@ class CreepyCatacombsPygameRenderer:
         pygame.display.set_caption("Creepy-Catacombs-S1")
         self.surface = pygame.Surface(self.window_size)
 
-        # Load assets
-        assets_path = os.path.join(os.path.dirname(__file__), "assets")
-        self.assets = {
-            "wall": pygame.image.load(os.path.join(assets_path, "wall.png")).convert_alpha(),
-            "start": pygame.image.load(os.path.join(assets_path, "start.png")).convert_alpha(),
-            "goal": pygame.image.load(os.path.join(assets_path, "goal.png")).convert_alpha(),
-            "floor": pygame.image.load(os.path.join(assets_path, "floor.png")).convert_alpha(),
-            "zombie": pygame.image.load(os.path.join(assets_path, "zombie.png")).convert_alpha(),
-            "ph": pygame.image.load(os.path.join(assets_path, "ph.png")).convert_alpha(),
-            "agent": pygame.image.load(os.path.join(assets_path, "agent.png")).convert_alpha(),
-        }
+        # Load assets using importlib.resources
+        self.assets = {}
+        asset_names = ["wall.png", "start.png", "goal.png", "floor.png", "zombie.png", "ph.png", "agent.png"]
+        for asset_name in asset_names:
+            with importlib.resources.path("creepy_catacombs_s1.render.assets", asset_name) as asset_path:
+                self.assets[asset_name.split(".")[0]] = pygame.image.load(asset_path).convert_alpha()
+
         for key in self.assets:
             self.assets[key] = pygame.transform.scale(
                 self.assets[key],
