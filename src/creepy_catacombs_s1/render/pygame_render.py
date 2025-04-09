@@ -59,7 +59,7 @@ class CreepyCatacombsPygameRenderer:
                 elif val == 3:
                     self._draw_asset("zombie", rect)
                 elif val == -2:
-                    self._draw_asset("plothole", rect)
+                    self._draw_asset("ph", rect)
 
         # Draw agent
         ar, ac = env.agent_pos
@@ -96,7 +96,7 @@ class CreepyCatacombsPygameRenderer:
                 "goal": (200, 0, 0),
                 "floor": (150, 150, 150),
                 "zombie": (0, 255, 0),
-                "plothole": (100, 0, 100),
+                "ph": (100, 0, 100),
                 "agent": (0, 0, 255),
             }
             color = fallback_colors.get(asset_name, (255, 255, 255))
@@ -123,7 +123,7 @@ class CreepyCatacombsPygameRenderer:
             "goal": pygame.image.load(os.path.join(assets_path, "goal.png")).convert_alpha(),
             "floor": pygame.image.load(os.path.join(assets_path, "floor.png")).convert_alpha(),
             "zombie": pygame.image.load(os.path.join(assets_path, "zombie.png")).convert_alpha(),
-            "plothole": pygame.image.load(os.path.join(assets_path, "ph.png")).convert_alpha(),
+            "ph": pygame.image.load(os.path.join(assets_path, "ph.png")).convert_alpha(),
             "agent": pygame.image.load(os.path.join(assets_path, "agent.png")).convert_alpha(),
         }
         for key in self.assets:
