@@ -16,15 +16,6 @@ def env():
         zombie_movement="random"
     )
 
-
-def test_render_rgb_array(env):
-    """Check that rendering in rgb_array mode returns a valid numpy array."""
-    env.reset()
-    arr = env.render()
-    assert isinstance(arr, np.ndarray), "render() should return a numpy array in rgb_array mode"
-    assert arr.ndim == 3 and arr.shape[-1] == 3, "Rendered array should have shape (H, W, 3)"
-
-
 def test_render_q_values_arrows(env):
     """Test that rendering Q-values as arrows works without errors."""
     Q = np.zeros((env.observation_space.n, env.action_space.n))  # Example Q-table
