@@ -150,6 +150,8 @@ class CreepyCatacombsEnv(gym.Env):
             self.logger.debug("Illegal move attempted to (%d, %d).", nr, nc)
         else:
             cell_val = self.grid[nr, nc]
+            if cell_val == -1: # Wall
+                reward = -1
             if cell_val == -2: # Plothole
                 reward = -25
                 terminated = True
@@ -175,8 +177,6 @@ class CreepyCatacombsEnv(gym.Env):
 
     def _is_illegal_move(self, nr: int, nc: int) -> bool:
         if nr < 0 or nr >= self.height or nc < 0 or nc >= self.width:
-            return True
-        if self.grid[nr, nc] == -1:  # Wall
             return True
         return False
 
