@@ -146,16 +146,16 @@ class CreepyCatacombsEnv(gym.Env):
             nr, nc = r, c - 1   # left
 
         if self._is_illegal_move(nr, nc):
-            reward = -2
+            reward = -10
             self.logger.debug("Illegal move attempted to (%d, %d).", nr, nc)
         else:
             cell_val = self.grid[nr, nc]
             if cell_val == -2: # Plothole
-                reward = -5
+                reward = -25
                 terminated = True
                 self.logger.debug("Agent fell into a plothole at (%d, %d).", nr, nc)
             elif cell_val == 2: # Goal
-                reward = 10
+                reward = 50
                 terminated = True
                 self.logger.info("Agent reached the goal at (%d, %d).", nr, nc)
             else:
@@ -165,7 +165,7 @@ class CreepyCatacombsEnv(gym.Env):
         if not terminated:
             self._move_zombies()
             if self.agent_pos in self.zombie_positions:
-                reward = -5  # Caught by a zombie
+                reward = -25  # Caught by a zombie
                 terminated = True
                 self.logger.debug("Agent was caught by a zombie at %s.", self.agent_pos)
 
