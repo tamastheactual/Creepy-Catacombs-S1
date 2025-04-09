@@ -8,7 +8,6 @@ on:
 
 jobs:
   build-and-test:
-    # 1) Use a matrix for OS + Python versions
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -16,11 +15,9 @@ jobs:
         python-version: ["3.9", "3.10", "3.11", "3.12"]
 
     steps:
-      # 1) Check out the code
       - name: Check out code
         uses: actions/checkout@v3
 
-      # 2) Set up Python with caching for pip
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -31,30 +28,24 @@ jobs:
             setup.py
             .github/workflows/ci.yml
 
-      # 3) Install build dependencies
       - name: Install build dependencies
         run: pip install --upgrade pip setuptools wheel build
 
-      # 4) Install test and lint dependencies
       - name: Install test and lint dependencies
         run: |
           pip install -e .[test] pytest pylint
 
-      # 5) Run tests with pytest
       - name: Run tests with pytest
         run: pytest --maxfail=1 --disable-warnings -q
 
-      # 6) Run linting with pylint
       - name: Run linting with pylint
         run: pylint src --ignore=tests --disable=missing-module-docstring,missing-class-docstring,missing-function-docstring,invalid-name,too-few-public-methods,too-many-arguments,too-many-instance-attributes,too-many-locals,too-many-statements,too-many-branches,too-many-return-statements --fail-under 8
         env:
           PYTHONPATH: src
 
-      # 7) Build the distribution
       - name: Build dist
         run: python -m build
 
-      # 8) Upload artifacts
       - name: Upload dist artifacts
         uses: actions/upload-artifact@v4
         with:
