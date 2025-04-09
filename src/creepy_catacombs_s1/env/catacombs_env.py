@@ -147,7 +147,6 @@ class CreepyCatacombsEnv(gym.Env):
 
         if self._is_illegal_move(nr, nc):
             reward = -2
-            terminated = True
             self.logger.debug("Illegal move attempted to (%d, %d).", nr, nc)
         else:
             cell_val = self.grid[nr, nc]
